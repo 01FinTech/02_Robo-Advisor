@@ -76,25 +76,45 @@ cov_mat = _df_rtn_final.cov()
 ## 标的预期收益
 exp_rtn = _df_rtn_final.mean()
 
+
+## 这个计算的代码需要优化一下
 def cal_efficient_frontier ( portfolio ) :
     cov_mat1 = cov_mat.iloc[portfolio][portfolio]
     exp_rtn1 = exp_rtn.iloc[portfolio]
-    max_rtn = max( exp_rtn1 )
-    min_rtn = min( exp_rtn1 )
+    max_rtn = max ( exp_rtn1 )
+    min_rtn = min ( exp_rtn1 )
     risks = []
     returns = []
 
     ## 20个点作图
+	## 参考文档
+	## http://cvxopt.org/examples/tutorial/qp.html
+	## min 1/2 * x^T * Q * x + p * x
+	## s.t. G * x <= h
+	## 		A * x = b
     for level_rtn in np.linspace( min_rtn, max_rtn, 20) :
         sec_num = len( portfolio )
-        _p = 2 * matrix( cov_mat1.values )
-        _q = matrix( np.zeros( sec_num ) )
-        _g = matrix( np.diag( -1 * np.ones( sec_num ) ) )
-        _h = matrix( 0.0 , (sec_num, 1 ) )
-        _a = matrix( np.matrix( [np.ones( sec_num ), exp_rtn1.values ]))
-        _b = matrix( [1.0 , level_rtn ])
-        solvers.options['show_progress'] = False
-        sol = solvers.qp( _p, _q, _g, _h, _a, _b )
+
+        _Q = 2 * matrix( cov_mat1.values )
+        _p = matrix ( np.zeros( sec_num ) )
+        _G = matrix ( np.diag( -1 * np.ones( sec_num ) ) )
+        _h = matrix ( 0.0 , ( sec_num, 1 ) )
+        _A = matrix ( np.matrix( [ np.ones( sec_num ), exp_rtn1.values ] ) )
+        _b = matrix ( [ 1.0 , level_rtn ] )
+
+#        print ('A is here/n')
+#        print ( _A )
+#        print ('b is here:/n')
+#        print ( _b )
+        
+        solvers.options['show_progress'] = True
+        sol = solvers.qp( _Q, _p, _G, _h, _A, _b )
+        
+        ## 查看最优权重
+#        if level_rtn == max_rtn :          
+#            print ('sol is here: \n')
+#            print ( sol['x'] )
+
         risks.append( sol['primal objective'])
         returns.append( level_rtn )
 
