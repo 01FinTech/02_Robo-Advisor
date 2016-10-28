@@ -40,7 +40,7 @@
 \renewcommand{\baselinestretch}{1.4}
 
 %% distance between paragraph
-\parskip 2mm	
+\parskip 2mm
 
 %% 第一段空两格
 \usepackage{indentfirst}
@@ -86,6 +86,12 @@
   tabsize = 4,	                   % sets default tabsize to 4 spaces
   title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
 }
+
+%% for math
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
 %% ----------------------------------------------------------- %%
 %% main part
 %% ----------------------------------------------------------- %%
@@ -98,9 +104,10 @@
 \begin{document}
 
 \title{智能投顾：理论与实践}
-%\author{ \sc{Haifeng XU} \\ 
-%        \tt{Email: 78112407@qq.com}\\
-%        \vspace{0.5\textheight} \phantom{phan}}
+\author{ 
+        %\sc{Haifeng XU} \\
+        \tt{Email: 78112407$@$qq.com}\\
+        \vspace{0.5\textheight} \phantom{phan}}
 \maketitle
 \newpage
 \pagestyle{empty}
@@ -109,47 +116,70 @@
 
 \pagestyle{plain}
 
+%% ----------------------------------------------------------- %%
 \chapter{介绍}
-
-所谓的智能投顾：
-
-在国外的发展情况：
-
-优势：手续费便宜，避税
+%% ----------------------------------------------------------- %%
 
 
-在国内发展的情况：
+所谓的智能投顾（Robo-Advisor），是指根据现代资产组合管理理论，
+利用机器学习等大数据处理技术，
+结合投资者的风险承受力与投资偏好，
+为其提供定制的资产投资方案。
 
-在国内发展相关法律法规禁止。
+由于管理费较低（0.20\% 至 0.50\% 左右），资产标的范围广泛，
+同时为客户提供避税服务，该业务在美国发展较为迅速。
+但该业务在国内基本没有实质发展。
+
+
+
+\section{海外发展情况}
 
 2010年，第一家智能投顾公司 Betterment 成立于纽约。
 截至2016年10月末，该公司管理的资产规模约 60 亿美元。
+目前最大的智能投顾公司是著名的 Vanguard 基金公司，
+智能投顾管理规模约 410 亿美元。
+但该公司管理的全部基金规模超过 35,000 亿元，
+其智能投顾的规模占比仅为 1.17\% 。
 
-截至2016年10月，目前最大的智能投顾公司是著名的 Vanguard 基金公司，
-管理规模约 410 亿美元。
+结论：
 
+（1）\emph{发展速度较快}。
+2010年至2016年的六年时间内，
 目前全部的智能投顾公司管理的资产规模约 3,000 亿（参见图\ref{fig:adviosr}）。
+
+（2）\emph{占比较低}。
+全美的基金管理规模是（\textcolor{red}{TODO} 查询），
+智能投顾占比是？
 
 \begin{figure}[htbp!]
         \centering
         \includegraphics[height=0.9\textheight]{advisor}
-        \caption{智能投顾发展一览 \newline (图片来源：http://www.visualcapitalist.com/robo-advisor-arms-race/)}
+        \caption{智能投顾发展一览\newline 
+                (图片来源：\underline{www.visualcapitalist.com/robo-advisor-arms-race})}
         \label{fig:adviosr}
 \end{figure}
 
 
+\section{国内情况}
 
-定义\\
-发展\\
-展望\\
-visual 图片\\
-选取国内外的资产\\
-画出efficient frontier\\
-给出配置组合\\
+在目前的法律法规框架下，国内该类业务已被叫停。
+此外，国内资产标的范围较小，费用较高，并且没有相关税收优惠政策，
+都制约了该类业务的发展。
+
+国内的弥财（\underline{https://micaiapp.com}）
+从设计到理念，都比较接近美国的 WealthFront 公司。
+该公司的资产标的均为海外资产，并且需要投资者自行换汇。
+
+但经本人测试，9月初该公司申请了账户，到目前还没有开户成功，
+并且官方提供的资产电话也无人接听。可能是受到监管的影响，
+无法开展业务。
 
 
 
+%% ----------------------------------------------------------- %%
 \chapter{实践出真知}
+%% ----------------------------------------------------------- %%
+
 
 本节构建资产组合。
 算法的理论基础是资本资产定价模型 CAPM （\textcolor{red}{TODO} 链接），
@@ -159,9 +189,13 @@ visual 图片\\
 海外资产的数据由 Yahoo Finance （\textcolor{red}{TODO} 链接）提供，
 国内资产的数据由 TuShare （\textcolor{red}{TODO} 链接）提供。
 
-该算法的不足：（1）估算不同资产间的相关性；（2）预测资产的年化收益率。
-事实上，上述两个问题是理论界与业界共同关心的主要问题。（\textcolor{red}{TODO} 链接）
-本文主要用历史收益率来估算。
+改进的方向：
+（1）选取资产
+（2）评估资产的相关性
+（3）预测资产收益率
+（4）模拟不同组合
+
+本文的资产标的主要涵盖股票、黄金、房地产、原油及货币基金。
 
 主要的资产组合都是ETF。
 （\textcolor{red}{TODO} 解释为什么要用 etf）
@@ -180,13 +214,41 @@ visual 图片\\
 QDII 组合费用（管理费＋托管费）在 1.00\% 左右，
 海外的约在 0.10\% 左右。
 
+\section{算法分析}
+
+假设资产池中有 N 个备选资产。对于资产 $i$ $(1 \le i \le N)$ , 
+其预期收益率为$\mu_i$，波动率 $\sigma_i$。 
+资产的协方差矩阵为 $V \in \mathbb{R}^{N\times N}$，特别地 $V^\top = V$，
+并且 $V_{k,k} = 1$ $(k=1, \ldots, N)$ 。
+
+给定一个资产组合的权重集：
+$\{w = (w_1, \ldots, w_N)^\top \in \mathbb{R}^{N\times 1} 
+        \;\colon\; \sum^N_{i=1} w_i = 1, w_i \ge 0 \}$，
+我们下面计算该集合中对应“有效边界” (Efficient frontier) 对应的子集合。
+即：给定一个组合的预期收益率 $\mu$ 
+$( \min\{\mu_i\} \le \mu \le \max\{\mu_j\} )$，
+我们计算该组合对应的最小波动率的组合 
+$w(\mu)$~\footnote{表示 $w(\cdot)$ 是一个关于 $\mu$ 的函数}。
+
+\begin{align*}
+        \min \quad & \frac{1}{2} w^\top V w \\
+        s.t.\quad  & \sum^N_{i=1} w_i \cdot \mu_i = \mu \\
+                   & \sum^N_{i=1} w_i = 1 \\
+                   & w_i \ge 0 \;,  \quad (1 \le i \le N) \\
+\end{align*}
+
+Python 中 \tt{Cvxopt} 包可以解决该优化问题。
 
 \section{Python Code}
 代码：
 
-\lstinputlisting[language=Python, caption = Download the data]{../02PythonCode/ETFDownloadData.py}
+\lstinputlisting[ language=Python, 
+                  caption = Download the data ]
+                {../02PythonCode/01ETFDownloadData.py}
 
-\lstinputlisting[language=Python, caption = Draw the captial allocation line]{../02PythonCode/ETFCAL.py}
+\newpage
+\lstinputlisting[ language=Python, 
+                  caption = Draw the captial allocation line ]
+                {../02PythonCode/02ETFCAL.py}
 
-\end{document}          
-
+\end{document}

@@ -16,7 +16,6 @@ print( df_return.head() )
 ## 即：有的资产可能从2013年开始，有的是从1998年开始
 
 ## print ( df_return.describe() )
-
 print ( df_return.head() )
 
 
@@ -25,7 +24,6 @@ portfolio1 = [2,3,4]
 ## 海外的 ETF
 portfolio2 = [23,24,25,26]
 ## TODO: 如何快速的表达 2:23 ?
-
 
 ## 协方差矩阵
 cov_mat = df_return.cov()
@@ -107,4 +105,4 @@ print ('well, good job!')
 
 
 
-## ----------------------------- END -------------------------------- ##
+## -------------------- END ----------------------- ##
