@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import numpy as np
+import numpy  as np
 import pandas as pd
 import datetime
 from matplotlib import pyplot as plt
-from cvxopt import matrix, solvers
+from cvxopt     import matrix, solvers
 
 df_return = pd.DataFrame()
 df_return = pd.read_csv( 'Data/etf_rtn.csv' )

@@ -1,4 +1,4 @@
-%% Created by:  Haifeng XU
+%% Created by:  H. XU
 %% Date:        Oct 27, 2016
 %% Email:       78112407@qq.com
 
@@ -104,13 +104,22 @@
 \begin{document}
 
 \title{智能投顾：理论与实践}
-\author{ 
-        %\sc{Haifeng XU} \\
-        \tt{Email: 78112407$@$qq.com}\\
+\author{
+        \sc{Denis Frederic} \\
+        \sc{Email}: \tt{78112407$@$qq.com}\\
         \vspace{0.5\textheight} \phantom{phan}}
+
 \maketitle
 \newpage
 \pagestyle{empty}
+
+\begin{abstract}    
+        本文简单回顾智能投顾（Robo-Advisor）的海内外发展情况，
+        主要分析该投资方案的算法，
+        并以 Python 模拟实现。
+\end{abstract}
+
+
 \tableofcontents
 \newpage
 
@@ -130,13 +139,12 @@
 同时为客户提供避税服务，该业务在美国发展较为迅速。
 但该业务在国内基本没有实质发展。
 
-
-
 \section{海外发展情况}
 
 2010年，第一家智能投顾公司 Betterment 成立于纽约。
 截至2016年10月末，该公司管理的资产规模约 60 亿美元。
-目前最大的智能投顾公司是著名的 Vanguard 基金公司，
+
+目前，规模最大的智能投顾公司是 Vanguard 基金公司，
 智能投顾管理规模约 410 亿美元。
 但该公司管理的全部基金规模超过 35,000 亿元，
 其智能投顾的规模占比仅为 1.17\% 。
@@ -144,8 +152,9 @@
 结论：
 
 （1）\emph{发展速度较快}。
-2010年至2016年的六年时间内，
-目前全部的智能投顾公司管理的资产规模约 3,000 亿（参见图\ref{fig:adviosr}）。
+从 2010 年至 2016 年，
+智能投顾公司管理的资产规模从无到有，
+到达了 3,000 亿（参见图\ref{fig:adviosr}）。
 
 （2）\emph{占比较低}。
 全美的基金管理规模是（\textcolor{red}{TODO} 查询），
@@ -154,17 +163,19 @@
 \begin{figure}[htbp!]
         \centering
         \includegraphics[height=0.9\textheight]{advisor}
-        \caption{智能投顾发展一览\newline 
-                (图片来源：\underline{www.visualcapitalist.com/robo-advisor-arms-race})}
+        \caption{智能投顾发展一览\newline
+                (图片来源：
+                \underline{www.visualcapitalist.com/robo-advisor-arms-race})}
         \label{fig:adviosr}
 \end{figure}
-
 
 \section{国内情况}
 
 在目前的法律法规框架下，国内该类业务已被叫停。
 此外，国内资产标的范围较小，费用较高，并且没有相关税收优惠政策，
 都制约了该类业务的发展。
+
+\subsection{弥财}
 
 国内的弥财（\underline{https://micaiapp.com}）
 从设计到理念，都比较接近美国的 WealthFront 公司。
@@ -174,6 +185,9 @@
 并且官方提供的资产电话也无人接听。可能是受到监管的影响，
 无法开展业务。
 
+\subsection{蛋卷基金}
+
+国内的雪球网（\textcolor{red}{TODO} 查询）
 
 
 %% ----------------------------------------------------------- %%
@@ -210,44 +224,68 @@
 
 （\textcolor{red}{TODO} 各 etf 的管理费、规模、成立日期，管理人）
 
-国内的 ETF 普遍比较坑，
+国内的 ETF 收费太高，
 QDII 组合费用（管理费＋托管费）在 1.00\% 左右，
 海外的约在 0.10\% 左右。
 
-\section{算法分析}
+\section{算法分析} 
 
-假设资产池中有 N 个备选资产。对于资产 $i$ $(1 \le i \le N)$ , 
-其预期收益率为$\mu_i$，波动率 $\sigma_i$。 
-资产的协方差矩阵为 $V \in \mathbb{R}^{N\times N}$，特别地 $V^\top = V$，
+假设资产池中有 N 个备选资产。对于资产 $i$ $(1 \le i \le N)$ ,
+其年化预期收益率为$\mu_i$，波动率 $\sigma_i$。
+全部资产的协方差矩阵为 $V \in \mathbb{R}^{N\times N}$，
+其中，$V_{i,j}$ 表示资产 $i$ 与资产 $j$ 的相关性系数。 
+特别地 $V^\top = V$，
 并且 $V_{k,k} = 1$ $(k=1, \ldots, N)$ 。
 
 给定一个资产组合的权重集：
-$\{w = (w_1, \ldots, w_N)^\top \in \mathbb{R}^{N\times 1} 
+$\{w = (w_1, \ldots, w_N)^\top \in \mathbb{R}^{N\times 1}
         \;\colon\; \sum^N_{i=1} w_i = 1, w_i \ge 0 \}$，
 我们下面计算该集合中对应“有效边界” (Efficient frontier) 对应的子集合。
-即：给定一个组合的预期收益率 $\mu$ 
+即：任意给定一个预期收益率 $\mu$
 $( \min\{\mu_i\} \le \mu \le \max\{\mu_j\} )$，
-我们计算该组合对应的最小波动率的组合 
+我们计算 $\mu$ 对应的全部组合中，
+波动率最小的组合
 $w(\mu)$~\footnote{表示 $w(\cdot)$ 是一个关于 $\mu$ 的函数}。
 
+该问题等价于如下的一个二次优化问题：
 \begin{align*}
         \min \quad & \frac{1}{2} w^\top V w \\
         s.t.\quad  & \sum^N_{i=1} w_i \cdot \mu_i = \mu \\
                    & \sum^N_{i=1} w_i = 1 \\
                    & w_i \ge 0 \;,  \quad (1 \le i \le N) \\
 \end{align*}
-
 Python 中 \tt{Cvxopt} 包可以解决该优化问题。
 
 \section{Python Code}
-代码：
+本部分，我们实现上述算法。
+代码分为两部分：
+（1）根据我们选定的资产，下载其历史数据；
+（2）针对每一个资产，估算其年化预期收益率 $\mu_i$、
+波动率 $\sigma_i$， 
+以及全部资产间的协方差矩阵 $V$。
+最后计算全部资产的有效边界（Efficient frontier）。
 
-\lstinputlisting[ language=Python, 
+\subsection{选定资产}
+
+我们选取的国内资产拟定为货币基金ETF，
+上证50ETF，中证500ETF，汇深300ETF，
+恒生ETF，债券ETF，黄金ETF；
+海外资产选取
+标普500ETF（SPY），纳斯达克指数（QQQ），
+USO，XOP，
+黄金ETF（GLD）。
+
+
+
+\lstinputlisting[ language=Python,
                   caption = Download the data ]
                 {../02PythonCode/01ETFDownloadData.py}
 
+
 \newpage
-\lstinputlisting[ language=Python, 
+\subsection{有效边界}
+
+\lstinputlisting[ language=Python,
                   caption = Draw the captial allocation line ]
                 {../02PythonCode/02ETFCAL.py}
 

@@ -55,15 +55,6 @@ def _initial_index_cn() :
 
 	index_list.append( '162411' )	## 华宝油气
 	index_name.append( '华宝油气' )
-	## 标普美国行业指数系列之油气开采及生产行业指数
-	## (S&P Select Industry Oil & Gas Exploration & Production)
-	## SPSIOP is the index being traced
-	## XOP is an ETF tracing SPSIOP
-	## 指数成分股的入选必须满足以下条件：
-	## 1、成份股是标普美国全市场指数的成员；
-	## 2、成份股属于GICS定义的油气二级行业分类；
-	## 3、成份股市值大于5亿美金，或市值大于4亿美金；
-	## 4、且交易量年换手率大于150%。
 
 	index_list.append( '164701' )	## 添富贵金
 	index_name.append( '添富贵金' )
@@ -111,7 +102,7 @@ def _initial_index_us() :
 	index_list = []
 	index_name = []
 
-	index_list.append( 'AAPL' )
+	index_list.append( '' )
 	index_name.append( 'Apple' )
 
 	index_list.append( 'GOOG' )
