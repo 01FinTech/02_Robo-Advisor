@@ -5,6 +5,10 @@ import pandas  as pd
 import numpy   as np
 import random
 
+num_iteration    = 10
+num_select_stock = 2
+year_start       = '2014-01-01'
+year_end         = '2016-01-01'
 
 
 ## --------------------------------------------------------------- ##
@@ -16,10 +20,9 @@ def initial_trading_date():
 	'''
 	list = []
 
+	list.append( '2010-01-04' )
 	list.append( '2011-01-04' )
 	list.append( '2012-01-04' )
-	list.append( '2013-01-04' )
-	list.append( '2014-01-04' )
 
 	return list
 ## --------------------------------------------------------------- ##
@@ -31,20 +34,18 @@ def initial_index():
 	'''
 
 	## return ts.get_stock_basics().index
-	return ts.get_sz50s().code ## which doesn't work
-	## return ts.get_hs300s().code
+	## return ts.get_sz50s().code ## which doesn't work
+	return ts.get_hs300s().code
 	## return ts.get_sz50s().code
 	## return ts.get_zz500s().code
 
 ## --------------------------------------------------------------- ##
 ## TODO: delete all the stocks with label "st"
 
-def random_draw( df, n ):
+def random_draw( df, n = num_select_stock ):
 	'''
 	return a list which chooses n random objects from df
 	'''
-
-	## TODO: this is NOT a real random!!
 	return df.take( np.random.permutation( len( df ) )[:n] ).values
 	## if in the function initial_index(),
 	## return ts.get_stock_basics().index
@@ -53,50 +54,48 @@ def random_draw( df, n ):
 
 ## --------------------------------------------------------------- ##
 
-def asset_date_return( list_asset_all, num_select_stock, list_date ):
+def asset_date_return( list_asset, list_date ):
 	list = []
 
-	'''
-	Remark:
-	the look is from 0 to n-2, where is the size of 'list_date'
-	'''
-	for i in xrange( len( list_date ) - 1 ):
-		print '\t The date is %r ' %list_date[i]
-		list_asset = random_draw( list_asset_all, num_select_stock )
+	for i in xrange( len( list_date ) ):
+		print '\t The date is %s ' %list_date[i]
+		list.append( average_asset_rtn( list_asset, list_date[i] ) )
 
-		print '\t\t the asset set is %r' %list_asset
-
-		tmp_average = 0.0
-
-		for j in xrange( len( list_asset ) ):
-			print '----------\n the asset is %r' %list_asset[j]
-			df = ts.get_k_data( code = list_asset[j],
-			 	   			   start = list_date[i] ,
-								 end = list_date[i+1] )
-
-			x1 = 0
-			x2 = 0
-			x1 = df[ df.date == list_date[i]   ].close.values
-			x2 = df[ df.date == list_date[i+1] ].close.values
-			print "the current price of the asset is %r, and the next year is%r"\
-			 %(x1,x2 )
-
-			tmp = x2[0] / x1[0] * 1.0 - 1.0
-			print 'the percentage of price change is %r' %tmp
-
-			tmp_average += tmp
-		print '\n the tmp_average is %r\n\n' %tmp_average
-
-		list.append( tmp_average / len( list_asset ) )
-
-	print '\n the list is %r' %list
 	return list
+
+## --------------------------------------------------------------- ##
+
+def average_asset_rtn( list_asset, mydate ):
+	'''
+	return the average close price for the assets in the 'list_asset'
+	on the date 'mydate'
+	'''
+	tmp = 0.0
+
+	'''
+	Remark 1:
+	the loop is from 0 to n-2, where n is the size of 'list_asset'
+	Remark 2:
+	after this iteration, tmp would be transfered to type of 'Series'
+
+	'''
+	for i in xrange( len( list_asset ) - 1 ):
+		## print 'for asset: ', list_asset[i]
+		print '----------\n the asset is %s' %list_asset[i]
+		df   = ts.get_k_data( code = list_asset[i] )
+		tmp += df[ df.date == mydate ].close
+
+		## transfer a 'Series' to number
+		tmp = tmp.values[0]
+		print 'the close price is %s' %tmp
+
+	return tmp / len( list_asset )
 
 ## --------------------------------------------------------------- ##
 
 ##TODO: compute the return during each period  for at least 10 years
 
-def main( num_iteration = 5, num_select_stock = 2 ):
+def main():
 	## get the trading date
 	list_date  = initial_trading_date()
 
@@ -107,21 +106,19 @@ def main( num_iteration = 5, num_select_stock = 2 ):
 	list_final_rtn = []
 
 	for i in xrange( num_iteration ):
-		print '\n\n=====================\n Round %r' %i
+		print '--------------\n Round %s' %i
 
 		## test for the code
 		## list_index_random = ['601668', '000002', '600000', '600007']
-		## list_index_random = random_draw( list_index, num_select_stock )
-		list_final_rtn.append( asset_date_return( list_index,
-													num_select_stock,
-													list_date ) )
-		print '\n list_final_rtn is %r' %list_final_rtn
+		list_index_random = random_draw( list_index )
+
+		list_final_rtn.append( asset_date_return( list_index_random, list_date ) )
+		print list_final_rtn
 
 	return list_final_rtn
 
 
-list_my_rtn = main(5,2)
-print '\n\n\n'
+list_my_rtn = main()
 print list_my_rtn
 
 
