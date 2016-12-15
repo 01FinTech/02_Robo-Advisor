@@ -55,7 +55,8 @@ def main( _num_iteration = 10, _num_draw = 20):
 
 
             df_tmp = RandomDraw( df_tmp, _num_draw )
-            print 'On %r, the stocks chosen were %r' %( _list_date[i], df_tmp )
+            print 'On %r, the stocks chosen were %r' \
+                  %( _list_date[i], df_tmp )
             tmp = AssetReturn( df_tmp )
             _rand_rtn.append( tmp )
 

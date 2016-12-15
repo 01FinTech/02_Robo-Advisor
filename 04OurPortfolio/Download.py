@@ -113,15 +113,20 @@ def Download_data():
         for i in xrange( len( _list_date ) - 1 ):
             print ' the date is %r' %_list_date[i] 
             try:
-                x1 = df_tmp[ df_tmp.date == _list_date[i]   ].close.values[0]
-                x2 = df_tmp[ df_tmp.date >= _list_date[i+1] ].close.values[0]
+                x1 = df_tmp[
+                            df_tmp.date == _list_date[i]
+                            ].close.values[0]
+                x2 = df_tmp[
+                            df_tmp.date >= _list_date[i+1]
+                            ].close.values[0]
 
                 x_tmp = round( Decimal( 1.0 * x2 / x1 - 1 ), 8 )
                 _list_rtn.append( x_tmp )
                 print 'the return was %r' %x_tmp
             except IndexError:
                 _list_rtn.append( 'NaN' )
-                print '>>> The asset %r is not available on date %r' %( _index_set[j], _list_date[i] )
+                print '>>> The asset %r is not available on date %r'\
+                      %( _index_set[j], _list_date[i] )
 
         _date_close.append( _list_rtn )
     
